@@ -1,31 +1,55 @@
+;;; whackatime.el --- Track time in emacs. -*- lexical-binding: t -*-
+
+;; Copyright (C) 2015-2020  Free Software Foundation, Inc.
+
+;; Author: Mark Dawson <markgdawson@gmail.com>
+;; Maintainer: Mark Dawson <markgdawson@gmail.com>
+;; URL: https://github.com/markgdawson/whackatime
+;; Version: 0.0.1
+;; Package-Requires: ((avy "0.5.0"))
+;; Keywords: window, location
+
+;; This file is part of GNU Emacs.
+
+;; This file is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; For a full copy of the GNU General Public License
+;; see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+;;
+;; Whackatime is intended to record events in a log.
+
+;;; Code:
 (defvar whackatime--last-buffer nil)
 
-(defcustom whackatime-current-buffer-changed-hook nil
-  "Functions to run when current buffer has changed.")
+(defvar whackatime-log-buffer (pop-to-buffer "*whackatime-log*")
+  "Buffer to log whackatime events.")
 
 (defun whackatime-turn-on ()
   "Watch for activity in buffers."
-  (add-hook 'post-command-hook #'whackatime-fire-buffer-changed-hook nil t)
-  (add-hook 'whackatime-current-buffer-changed-hook #'whackatime-buffer-change nil t))
+  (add-hook 'post-command-hook #'whackatime-post-command-hook nil t))
 
 (defun whackatime-turn-off ()
   "Stop watching for activity in buffers."
-  (remove-hook 'post-command-hook #'whackatime-fire-buffer-changed-hook t)
-  (remove-hook 'whackatime-current-buffer-changed-hook #'whackatime-buffer-change t))
-
-(defun whackatime-fire-buffer-changed-hook ()
-  "Fire `whackatime-current-buffer-changed-hook` on buffer change."
-  (let ((buffer (current-buffer)))
-    (unless (equal whackatime--last-buffer buffer)
-      (progn
-        (run-hooks 'whackatime-current-buffer-changed-hook)))))
+  (remove-hook 'post-command-hook #'whackatime-post-command-hook t))
 
 (defun whackatime--ordinary-buffer-p (buff)
+  "Return non-nil if BUFF is an ordinary file-visiting buffer."
   (and
    (buffer-file-name buff)
    (not (auto-save-file-name-p (buffer-file-name buff)))))
 
 (defun whackatime-recordable-buffer (buff)
+  "Return buffer name if BUFF is recordable."
   (cond ((whackatime--ordinary-buffer-p buff) (buffer-file-name buff))
         ;; org edit src buffer
         (org-src--beg-marker (buffer-file-name (marker-buffer org-src--beg-marker)))
