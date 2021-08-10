@@ -36,11 +36,11 @@
 
 (defun whackatime-turn-on ()
   "Watch for activity in buffers."
-  (add-hook 'post-command-hook #'whackatime-post-command-hook nil t))
+  (add-hook 'buffer-list-update-hook #'whackatime-buffer-list-update-hook nil t))
 
 (defun whackatime-turn-off ()
   "Stop watching for activity in buffers."
-  (remove-hook 'post-command-hook #'whackatime-post-command-hook t))
+  (remove-hook 'buffer-list-update-hook #'whackatime-buffer-list-update-hook t))
 
 (defun whackatime--ordinary-buffer-p (buff)
   "Return non-nil if BUFF is an ordinary file-visiting buffer."
@@ -48,40 +48,56 @@
    (buffer-file-name buff)
    (not (auto-save-file-name-p (buffer-file-name buff)))))
 
-(defun whackatime-recordable-buffer (buff)
+(defun whackatime--git-commit (&optional buff)
+  (with-current-buffer (or buff (current-buffer))
+    (magit-git-string "log" "-n1" "--format=%h")))
+
+(defun whackatime-recordable-buffer-name (buff)
   "Return buffer name if BUFF is recordable."
   (cond ((whackatime--ordinary-buffer-p buff) (buffer-file-name buff))
         ;; org edit src buffer
-        (org-src--beg-marker (buffer-file-name (marker-buffer org-src--beg-marker)))
-        (exwm-title exwm-title)
-        ((window-minibuffer-p) nil)
+        ((bound-and-true-p org-src--beg-marker) (buffer-file-name (marker-buffer org-src--beg-marker)))
+        ((bound-and-true-p exwm-title) exwm-title)
         ((string= major-mode 'dired-mode) default-directory)
         ((buffer-name buff))))
 
-(defun whackatime-log-activity-maybe ()
-  "Potentially record whackatime log."
-  (let* ((buffer (current-buffer))
-         (buffer-name buffer))
-    (when-let (buffer-name (whackatime-recordable-buffer buffer))
-      (whackatime-log-activity buffer-name)
-      (setq whackatime--last-buffer buffer))))
+(defun whackatime-log-message (message)
+  "Log the activity with BUFFER-NAME."
+  (save-excursion
+    (with-current-buffer whackatime-log-buffer
+      (goto-char (point-max))
+      (insert message)
+      (insert "\n"))))
 
-(defun whackatime-buffer-change ()
-  "Called when a command will switch current buffer."
-  (whackatime-log-activity-maybe))
+(defun whackatime-log-activity (buffer)
+  "Log whackatime activity for BUFFER."
+  (whackatime-log-message
+   (format "%f %s %s %s"
+           (float-time)
+           (whackatime--git-commit buffer)
+           major-mode
+           (whackatime-recordable-buffer-name buffer))))
 
-(defvar whackatime-log-buffer (pop-to-buffer "*whackatime-log*")
-  "Buffer to log whackatime events")
+(defun whackatime-buffer-list-update-hook ()
+  "Called on BUFFER-LIST-UPDATE-HOOK to process current buffer."
+  (whackatime-process-buffer (current-buffer)))
 
-(defun whackatime-log-activity (buffer-name)
-  "Log the activity with a LABEL and a BUFFER."
-  (with-current-buffer whackatime-log-buffer
-    (goto-char (point-max))
-    (insert (format "%f: %s %s\n" (float-time) major-mode buffer-name))))
+(defun whackatime-ignore-buffer-p (buffer)
+  "Return non-nil if BUFFER should be ignored."
+  (string-match "\*eldoc for"
+                (buffer-name buffer)))
+
+(defun whackatime-process-buffer (buffer)
+  "Determine if BUFFER is a different buffer to the last call, and log an event if it is."
+  (unless (or (equal whackatime--last-buffer buffer)
+              (window-minibuffer-p)
+              (whackatime-ignore-buffer-p buffer))
+    (whackatime-log-activity buffer)
+    (setq whackatime--last-buffer buffer)))
 
 ;;;###autoload
 (define-minor-mode whackatime-mode
-  "Toggle WhackaTime"
+  "Toggle whackatime-mode."
   :lighter    " whacka"
   :init-value nil
   :global     nil
@@ -92,3 +108,6 @@
    (t (whackatime-turn-off))))
 
 (define-globalized-minor-mode global-whackatime-mode whackatime-mode (lambda () (whackatime-mode 1)))
+
+(provide 'whackatime)
+;;; whackatime ends here
