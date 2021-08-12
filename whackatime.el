@@ -50,7 +50,8 @@
 
 (defun whackatime--git-commit (&optional buff)
   (with-current-buffer (or buff (current-buffer))
-    (magit-git-string "log" "-n1" "--format=%h")))
+    (when (file-exists-p default-directory)
+      (magit-git-string "log" "-n1" "--format=%h"))))
 
 (defun whackatime-recordable-buffer-name (buff)
   "Return buffer name if BUFF is recordable."
