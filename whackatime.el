@@ -6,7 +6,7 @@
 ;; Maintainer: Mark Dawson <markgdawson@gmail.com>
 ;; URL: https://github.com/markgdawson/whackatime
 ;; Version: 0.0.1
-;; Package-Requires: ((avy "0.5.0"))
+;; Package-Requires: (magit)
 ;; Keywords: window, location
 
 ;; This file is part of GNU Emacs.
@@ -29,6 +29,9 @@
 ;; Whackatime is intended to record events in a log.
 
 ;;; Code:
+
+(require 'magit)
+
 (defvar whackatime--last-buffer nil)
 
 (defvar whackatime-log-buffer (pop-to-buffer "*whackatime-log*")
