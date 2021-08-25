@@ -190,7 +190,9 @@ active state appears in the log before a buffer change."
    (whackatime-mode (whackatime-turn-on))
    (t (whackatime-turn-off))))
 
-(define-globalized-minor-mode global-whackatime-mode whackatime-mode (lambda () (whackatime-mode 1)))
+(define-globalized-minor-mode global-whackatime-mode
+  whackatime-mode
+  (lambda () (whackatime-mode 1)))
 
 (provide 'whackatime)
 ;;; whackatime ends here
