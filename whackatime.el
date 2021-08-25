@@ -62,13 +62,14 @@
   "Return non-nil if current buffer is a firefox private mode buffer."
   (and (bound-and-true-p exwm-title) exwm-title (string-match " (Private Browsing)$" exwm-title)))
 
-(defun whackatime-recordable-major-mode ()
-  "Return the recordable major mode for the current buffer.
+(defun whackatime-recordable-major-mode (buffer)
+  "Return the recordable major mode for BUFFER.
 The mode name is lowercase with no spaces."
-  (cond ((bound-and-true-p exwm-title)
-         (downcase
-          (string-replace " " "-" (concat "exwm-" exwm-class-name))))
-        (major-mode)))
+  (with-current-buffer buffer
+    (cond ((bound-and-true-p exwm-title)
+           (downcase
+            (string-replace " " "-" (concat "exwm-" exwm-class-name))))
+          (major-mode))))
 
 (defun whackatime-laptop-lid-status-changed (status)
   "This should be called by a mechanism like ACPI ever time the laptop lid is closed or opened.  STATUS should have value \"closed\" when the lid is open."
@@ -101,7 +102,7 @@ The mode name is lowercase with no spaces."
    (format "%f %s %s %s"
            (float-time)
            (whackatime--git-commit buffer)
-           (whackatime-recordable-major-mode)
+           (whackatime-recordable-major-mode buffer)
            (whackatime-recordable-buffer-name buffer))))
 
 (defun whackatime-buffer-list-update-hook ()
