@@ -40,6 +40,9 @@
 (defun whackatime-turn-on ()
   "Watch for activity in buffers."
   (add-hook 'buffer-list-update-hook #'whackatime-buffer-list-update-hook nil t)
+  ;; Fire buffer list update hook once at startup to ensure current
+  ;; buffer is recorded.
+  (whackatime-buffer-list-update-hook)
   (whackatime--start-idle-timer))
 
 (defun whackatime-turn-off ()
