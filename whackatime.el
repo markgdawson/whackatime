@@ -145,7 +145,7 @@ The mode name is lowercase with no spaces."
 (defun whackatime-log-idle ()
   "Log last Emacs idle state."
   (whackatime-log-message
-   (format "%f IDLE" (- (float-time) (whackatime-idle-seconds)))))
+   (format "%f nil nil IDLE" (- (float-time) (whackatime-idle-seconds)))))
 
 (defun whackatime-log-active ()
   "Log that Emacs is now active."
