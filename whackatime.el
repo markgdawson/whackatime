@@ -112,9 +112,13 @@ The mode name is lowercase with no spaces."
   "Called on BUFFER-LIST-UPDATE-HOOK to process current buffer."
   (whackatime-process-buffer (current-buffer)))
 
+(defcustom whackatime-ignore-buffer-regexp
+  "^\s*\\*.*[^*]\\*$"
+  "Buffer names matching this regular expression are ignored.")
+
 (defun whackatime-ignore-buffer-p (buffer)
-  "Return non-nil if BUFFER should be ignored."
-  (string-match "\*eldoc for"
+  "Return non-nil if BUFFER is a special buffer."
+  (string-match whackatime-ignore-buffer-regexp
                 (buffer-name buffer)))
 
 (defun whackatime-process-buffer (buffer)
