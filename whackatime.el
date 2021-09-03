@@ -61,6 +61,12 @@
     (when (file-exists-p default-directory)
       (magit-git-string "log" "-n1" "--format=%h"))))
 
+(defun whackatime--git-branch (buff)
+  "Fetch git commit associated with a BUFF or nil."
+  (with-current-buffer buff
+    (when (file-exists-p default-directory)
+      (magit-git-string "branch" "--show-current"))))
+
 (defun whackatime--current-buffer-is-firefox-private-mode ()
   "Return non-nil if current buffer is a firefox private mode buffer."
   (and (bound-and-true-p exwm-title) exwm-title (string-match " (Private Browsing)$" exwm-title)))
@@ -102,8 +108,9 @@ The mode name is lowercase with no spaces."
   "Log whackatime activity for BUFFER."
   (whackatime--check-idle-time) ;; ensure that state is ACTIVE
   (whackatime-log-message
-   (format "Timestamp: %f\nCommit: %s\nMajor-Mode: %s\nBuffer-Name: %s\n"
+   (format "Timestamp: %f\nGit-Branch: %s\nGit-Commit: %s\nMajor-Mode: %s\nBuffer-Name: %s\n"
            (float-time)
+           (whackatime--git-branch buffer)
            (whackatime--git-commit buffer)
            (whackatime-recordable-major-mode buffer)
            (whackatime-recordable-buffer-name buffer))))
