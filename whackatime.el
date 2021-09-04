@@ -103,7 +103,6 @@ The mode name is lowercase with no spaces."
 
 (defun whackatime-log-activity (buffer)
   "Log whackatime activity for BUFFER."
-  (whackatime--check-idle-time) ;; ensure that state is ACTIVE
   (whackatime-log-message
    (format "Timestamp: %f\nGitBranch: %s\nGitCommit: %s\nMajorMode: %s\nBufferName: %s\n"
            (float-time)
