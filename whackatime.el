@@ -101,15 +101,21 @@ The mode name is lowercase with no spaces."
   "Log the activity with MESSAGE."
   (append-to-file message nil whackatime-log-filename))
 
+(defun whackatime-format-time (time)
+  "Return TIME as a human readable string."
+  (format-time-string "%b %d %Y %H:%M" time))
+
 (defun whackatime-log-activity (buffer)
   "Log whackatime activity for BUFFER."
   (whackatime-log-message
-   (format "Timestamp: %f\nGitBranch: %s\nGitCommit: %s\nMajorMode: %s\nBufferName: %s\n\n"
-           (float-time)
-           (whackatime--git-branch buffer)
-           (whackatime--git-commit buffer)
-           (whackatime-recordable-major-mode buffer)
-           (whackatime-recordable-buffer-name buffer))))
+   (let ((time (float-time)))
+     (format "Timestamp: %f\nTime: %s\nGitBranch: %s\nGitCommit: %s\nMajorMode: %s\nBufferName: %s\n\n"
+             time
+             (whackatime-format-time time)
+             (whackatime--git-branch buffer)
+             (whackatime--git-commit buffer)
+             (whackatime-recordable-major-mode buffer)
+             (whackatime-recordable-buffer-name buffer)))))
 
 (defun whackatime-buffer-list-update-hook ()
   "Called on BUFFER-LIST-UPDATE-HOOK to process current buffer."
@@ -148,7 +154,8 @@ The mode name is lowercase with no spaces."
 (defun whackatime-log-idle ()
   "Log last Emacs idle state."
   (whackatime-log-message
-   (format "Timestamp: %f\nStatus: Idle\n\n" (- (float-time) (whackatime-idle-seconds)))))
+   (let ((time (- (float-time) (whackatime-idle-seconds))))
+     (format "Timestamp: %f\nTime: %s\nStatus: Idle\n\n" time (whackatime-format-time time)))))
 
 (defun whackatime-log-active ()
   "Log that Emacs is now active."
