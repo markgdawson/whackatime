@@ -34,7 +34,8 @@
 
 (defvar whackatime--last-buffer nil)
 
-(defvar whackatime-log-filename (concat user-emacs-directory "whackatime-log.rec")
+(defvar whackatime-log-filename (concat user-emacs-directory
+                                        "whackatime-log.rec")
   "Buffer to log whackatime events.")
 
 (defun whackatime-turn-on ()
