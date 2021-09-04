@@ -1,4 +1,4 @@
-;;; whackatime.el --- Track time in emacs. -*- lexical-binding: t -*-
+;;; whackatime.el --- Track time in emacs -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015-2020  Free Software Foundation, Inc.
 
@@ -6,8 +6,8 @@
 ;; Maintainer: Mark Dawson <markgdawson@gmail.com>
 ;; URL: https://github.com/markgdawson/whackatime
 ;; Version: 0.0.1
-;; Package-Requires: (magit)
-;; Keywords: window, location
+;; Package-Requires: ((emacs "27.1") (magit "2.90.1"))
+;; Keywords: tools
 
 ;; This file is part of GNU Emacs.
 
@@ -211,4 +211,4 @@ active state appears in the log before a buffer change."
   (lambda () (whackatime-mode 1)))
 
 (provide 'whackatime)
-;;; whackatime ends here
+;;; whackatime.el ends here
