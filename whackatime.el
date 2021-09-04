@@ -34,7 +34,7 @@
 
 (defvar whackatime--last-buffer nil)
 
-(defvar whackatime-log-buffer (pop-to-buffer "*whackatime-log*")
+(defvar whackatime-log-filename (concat user-emacs-directory "whackatime-log.rec")
   "Buffer to log whackatime events.")
 
 (defun whackatime-turn-on ()
@@ -98,11 +98,7 @@ The mode name is lowercase with no spaces."
 
 (defun whackatime-log-message (message)
   "Log the activity with MESSAGE."
-  (save-excursion
-    (with-current-buffer whackatime-log-buffer
-      (goto-char (point-max))
-      (insert message)
-      (insert "\n"))))
+  (append-to-file message nil whackatime-log-filename))
 
 (defun whackatime-log-activity (buffer)
   "Log whackatime activity for BUFFER."
